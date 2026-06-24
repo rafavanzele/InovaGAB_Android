@@ -86,6 +86,11 @@ class StrategicGuidanceViewModel : ViewModel() {
         strategicGuidance: StrategicGuidance
     ) {
 
+        if (strategicGuidance.id.isBlank()) {
+            _errorMessage.value = "Não foi possível editar esta orientação."
+            return
+        }
+
         viewModelScope.launch {
 
             try {
@@ -110,6 +115,11 @@ class StrategicGuidanceViewModel : ViewModel() {
         id: String
     ) {
 
+        if (id.isBlank()) {
+            _errorMessage.value = "Não foi possível excluir esta orientação."
+            return
+        }
+
         viewModelScope.launch {
 
             try {
@@ -118,7 +128,7 @@ class StrategicGuidanceViewModel : ViewModel() {
 
                 loadGuidances()
 
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
 
                 _errorMessage.value =
                     "Erro ao excluir orientação"

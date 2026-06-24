@@ -46,6 +46,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 
 @Composable
 fun ProjectsScreen(
@@ -63,10 +65,11 @@ fun ProjectsScreen(
     var deadline by remember { mutableStateOf("") }
     var investment by remember { mutableStateOf("") }
     var expectedReturn by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
+    val snackbarHostState = remember { SnackbarHostState() }
 
 
     ModalNavigationDrawer(
@@ -90,6 +93,11 @@ fun ProjectsScreen(
                     }
                 )
             },
+
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
+
             containerColor = Color(0xFFF5F7FB)
         ) { paddingValues ->
 
@@ -228,6 +236,15 @@ fun ProjectsScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 )
 
+                                if (showError) {
+
+                                    Text(
+                                        text = "Preencha todos os campos obrigatórios.",
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
                                 Spacer(
                                     modifier = Modifier.height(8.dp)
                                 )
@@ -242,6 +259,20 @@ fun ProjectsScreen(
                                     ),
 
                                     onClick = {
+
+                                        if (
+                                            title.isBlank() ||
+                                            description.isBlank() ||
+                                            responsible.isBlank() ||
+                                            deadline.isBlank() ||
+                                            investment.isBlank() ||
+                                            expectedReturn.isBlank()
+                                        ) {
+                                            showError = true
+                                            return@Card
+                                        }
+
+                                        showError = false
 
                                         viewModel.addProject(
 
@@ -267,6 +298,12 @@ fun ProjectsScreen(
                                         expectedReturn = ""
 
                                         showForm = false
+
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = "Projeto cadastrado com sucesso!"
+                                            )
+                                        }
                                     }
                                 ) {
 

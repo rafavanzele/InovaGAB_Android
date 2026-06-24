@@ -41,6 +41,8 @@ import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
 import br.com.fiap.inovagab.viewmodel.IdeaViewModel
 import br.com.fiap.inovagab.data.model.Idea
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +53,7 @@ fun CreateIdeaScreen(
 
     var ideaTitle by remember { mutableStateOf("") }
     var ideaDescription by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -79,6 +82,11 @@ fun CreateIdeaScreen(
                     }
                 )
             },
+
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
+
             containerColor = Color(0xFFF5F7FB)
         ) { paddingValues ->
 
@@ -190,6 +198,12 @@ fun CreateIdeaScreen(
 
                         ideaTitle = ""
                         ideaDescription = ""
+
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Ideia cadastrada com sucesso!"
+                            )
+                        }
                     },
                     enabled = ideaTitle.isNotBlank() && ideaDescription.isNotBlank(),
                     modifier = Modifier

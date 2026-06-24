@@ -208,7 +208,15 @@ fun StrategicGuidanceScreen(
                                         category = guidance.categoria
                                     },
                                     onDeleteClick = {
-                                        guidanceToDelete = guidance
+                                        if (guidance.id.isNullOrBlank() || guidance.id.length < 3) {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "Não foi possível excluir esta orientação."
+                                                )
+                                            }
+                                        } else {
+                                            guidanceToDelete = guidance
+                                        }
                                     }
                                 )
                             }
