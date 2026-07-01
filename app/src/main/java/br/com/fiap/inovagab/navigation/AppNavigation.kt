@@ -26,6 +26,8 @@ import br.com.fiap.inovagab.viewmodel.IdeaViewModel
 import br.com.fiap.inovagab.ui.screens.leader.ContributorRankingScreen
 import br.com.fiap.inovagab.ui.viewmodel.ContributorRankingViewModel
 import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import br.com.fiap.inovagab.ui.screens.common.ProfileScreen
+import br.com.fiap.inovagab.ui.screens.common.NotificationsScreen
 
 @Composable
 fun AppNavigation() {
@@ -44,6 +46,19 @@ fun AppNavigation() {
                 navController = navController,
                 authViewModel = authViewModel
                 )
+        }
+
+        composable("profile") {
+            ProfileScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
+        }
+
+        composable("notifications") {
+            NotificationsScreen(
+                navController = navController
+            )
         }
 
         composable("operatorHome") {

@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -83,6 +82,8 @@ fun InovaDrawer(
             label = "Perfil",
             icon = Icons.Default.Person,
             onClick = {
+                navController?.navigate("profile")
+
                 scope.launch {
                     drawerState?.close()
                 }
@@ -93,22 +94,14 @@ fun InovaDrawer(
             label = "Notificações",
             icon = Icons.Default.Notifications,
             onClick = {
+                navController?.navigate("notifications")
+
                 scope.launch {
                     drawerState?.close()
                 }
             }
         )
-
-        DrawerItem(
-            label = "Configurações",
-            icon = Icons.Default.Settings,
-            onClick = {
-                scope.launch {
-                    drawerState?.close()
-                }
-            }
-        )
-
+        
         DrawerItem(
             label = "Sair",
             icon = Icons.Default.ExitToApp,

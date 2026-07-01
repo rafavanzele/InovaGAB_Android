@@ -7,6 +7,8 @@ class AuthViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    val currentUser = auth.currentUser
+
     fun isUserLoggedIn(): Boolean {
         return auth.currentUser != null
     }
