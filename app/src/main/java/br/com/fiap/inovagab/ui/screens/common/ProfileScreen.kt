@@ -52,7 +52,19 @@ fun ProfileScreen(
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "operatorHome"
+                homeRoute = homeRoute,
+                profileRoute = when (profileName) {
+                    "Operador" -> "operatorProfile"
+                    "Gestor" -> "managerProfile"
+                    "Liderança" -> "leaderProfile"
+                    else -> "operatorProfile"
+                },
+                notificationsRoute = when (profileName) {
+                    "Operador" -> "operatorNotifications"
+                    "Gestor" -> "managerNotifications"
+                    "Liderança" -> "leaderNotifications"
+                    else -> "operatorNotifications"
+                }
             )
         }
     ) {

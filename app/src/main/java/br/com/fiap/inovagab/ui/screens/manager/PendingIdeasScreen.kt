@@ -64,7 +64,9 @@ fun PendingIdeasScreen(
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "managerHome"
+                homeRoute = "managerHome",
+                profileRoute = "managerProfile",
+                notificationsRoute = "managerNotifications"
             )
         }
     ) {

@@ -32,7 +32,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NotificationsScreen(
-    navController: NavController
+    navController: NavController,
+    homeRoute: String,
+    profileRoute: String
 ) {
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -46,7 +48,8 @@ fun NotificationsScreen(
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "operatorHome"
+                homeRoute = homeRoute,
+                profileRoute = profileRoute
             )
         }
     ) {

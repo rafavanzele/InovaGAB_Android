@@ -75,9 +75,27 @@ fun AppNavigation() {
             )
         }
 
-        composable("notifications") {
+        composable("operatorNotifications") {
             NotificationsScreen(
-                navController = navController
+                navController = navController,
+                homeRoute = "operatorHome",
+                profileRoute = "operatorProfile"
+            )
+        }
+
+        composable("managerNotifications") {
+            NotificationsScreen(
+                navController = navController,
+                homeRoute = "managerHome",
+                profileRoute = "managerProfile"
+            )
+        }
+
+        composable("leaderNotifications") {
+            NotificationsScreen(
+                navController = navController,
+                homeRoute = "leaderHome",
+                profileRoute = "leaderProfile"
             )
         }
 

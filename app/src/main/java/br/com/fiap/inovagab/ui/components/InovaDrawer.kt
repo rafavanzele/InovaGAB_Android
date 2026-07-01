@@ -34,7 +34,8 @@ fun InovaDrawer(
     navController: NavController? = null,
     drawerState: DrawerState? = null,
     homeRoute: String = "",
-    profileRoute: String = ""
+    profileRoute: String = "",
+    notificationsRoute: String = ""
 ) {
 
     val scope = rememberCoroutineScope()
@@ -97,7 +98,9 @@ fun InovaDrawer(
             label = "Notificações",
             icon = Icons.Default.Notifications,
             onClick = {
-                navController?.navigate("notifications")
+                if (notificationsRoute.isNotBlank()) {
+                    navController?.navigate(notificationsRoute)
+                }
 
                 scope.launch {
                     drawerState?.close()

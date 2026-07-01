@@ -71,7 +71,9 @@ fun ApprovalsScreen(
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "managerHome"
+                homeRoute = "managerHome",
+                profileRoute = "managerProfile",
+                notificationsRoute = "managerNotifications"
             )
         }
     ) {

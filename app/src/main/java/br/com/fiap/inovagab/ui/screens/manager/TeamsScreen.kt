@@ -73,7 +73,9 @@ fun TeamsScreen(navController: NavController? = null) {
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "managerHome"
+                homeRoute = "managerHome",
+                profileRoute = "managerProfile",
+                notificationsRoute = "managerNotifications"
             )
         }
     ) {
