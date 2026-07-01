@@ -54,7 +54,8 @@ fun OperatorHomeScreen(navController: NavController? = null) {
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "operatorHome"
+                homeRoute = "operatorHome",
+                profileRoute = "operatorProfile"
             )
         }
     ) {

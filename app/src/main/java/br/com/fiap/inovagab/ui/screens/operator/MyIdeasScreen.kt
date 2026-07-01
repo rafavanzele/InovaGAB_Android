@@ -63,7 +63,8 @@ fun MyIdeasScreen(
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "operatorHome"
+                homeRoute = "operatorHome",
+                profileRoute = "operatorProfile"
             )
         }
     ) {

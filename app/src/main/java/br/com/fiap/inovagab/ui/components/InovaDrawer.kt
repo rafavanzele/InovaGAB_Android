@@ -33,7 +33,8 @@ import kotlinx.coroutines.launch
 fun InovaDrawer(
     navController: NavController? = null,
     drawerState: DrawerState? = null,
-    homeRoute: String = ""
+    homeRoute: String = "",
+    profileRoute: String = ""
 ) {
 
     val scope = rememberCoroutineScope()
@@ -82,7 +83,9 @@ fun InovaDrawer(
             label = "Perfil",
             icon = Icons.Default.Person,
             onClick = {
-                navController?.navigate("profile")
+                if (profileRoute.isNotBlank()) {
+                    navController?.navigate(profileRoute)
+                }
 
                 scope.launch {
                     drawerState?.close()

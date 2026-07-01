@@ -34,7 +34,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    profileName: String,
+    homeRoute: String
 ) {
     val userEmail = authViewModel.currentUser?.email ?: "E-mail não informado"
 

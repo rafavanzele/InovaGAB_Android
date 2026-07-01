@@ -48,10 +48,30 @@ fun AppNavigation() {
                 )
         }
 
-        composable("profile") {
+        composable("operatorProfile") {
             ProfileScreen(
                 navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                profileName = "Operador",
+                homeRoute = "operatorHome"
+            )
+        }
+
+        composable("managerProfile") {
+            ProfileScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+                profileName = "Gestor",
+                homeRoute = "managerHome"
+            )
+        }
+
+        composable("leaderProfile") {
+            ProfileScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+                profileName = "Liderança",
+                homeRoute = "leaderHome"
             )
         }
 
