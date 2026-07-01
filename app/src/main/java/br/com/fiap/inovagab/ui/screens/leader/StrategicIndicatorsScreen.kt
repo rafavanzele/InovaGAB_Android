@@ -63,7 +63,9 @@ fun StrategicIndicatorsScreen(
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "leaderHome"
+                homeRoute = "leaderHome",
+                profileRoute = "leaderProfile",
+                notificationsRoute = "leaderNotifications"
             )
         }
     ) {

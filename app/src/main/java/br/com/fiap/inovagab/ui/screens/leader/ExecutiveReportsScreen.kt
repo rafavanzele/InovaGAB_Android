@@ -58,7 +58,9 @@ fun ExecutiveReportsScreen(navController: NavController) {
             InovaDrawer(
                 navController = navController,
                 drawerState = drawerState,
-                homeRoute = "leaderHome"
+                homeRoute = "leaderHome",
+                profileRoute = "leaderProfile",
+                notificationsRoute = "leaderNotifications"
             )
         }
     ) {
