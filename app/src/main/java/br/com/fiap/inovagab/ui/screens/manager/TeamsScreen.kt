@@ -36,12 +36,9 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
+import br.com.fiap.inovagab.data.mock.TeamMock
+import br.com.fiap.inovagab.data.model.Team
 
-data class Team(
-    val name: String,
-    val members: Int,
-    val ideasSubmitted: Int
-)
 
 @Composable
 fun TeamsScreen(navController: NavController? = null) {
@@ -49,23 +46,7 @@ fun TeamsScreen(navController: NavController? = null) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val teams = listOf(
-        Team(
-            name = "Equipe Operacional",
-            members = 12,
-            ideasSubmitted = 8
-        ),
-        Team(
-            name = "Equipe Estratégica",
-            members = 6,
-            ideasSubmitted = 5
-        ),
-        Team(
-            name = "Equipe Desenvolvimento",
-            members = 9,
-            ideasSubmitted = 11
-        )
-    )
+    val teams = TeamMock.teams
 
     ModalNavigationDrawer(
         drawerState = drawerState,
