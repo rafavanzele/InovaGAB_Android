@@ -166,13 +166,17 @@ fun LoginScreen(
                         email = email,
                         password = password,
 
-                        onSuccess = {
-                            Toast.makeText(context, "Login realizado com sucesso", Toast.LENGTH_SHORT).show()
+                        onSuccess = { response ->
+                            Toast.makeText(
+                                context,
+                                "Login realizado com sucesso",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
-                            val route = when (email.lowercase().trim()) {
-                                "operador@inovagab.com" -> "operatorHome"
-                                "gestor@inovagab.com" -> "managerHome"
-                                "lideranca@inovagab.com" -> "leaderHome"
+                            val route = when (response.perfil.lowercase().trim()) {
+                                "operador" -> "operatorHome"
+                                "gestor" -> "managerHome"
+                                "lideranca" -> "leaderHome"
                                 else -> null
                             }
 

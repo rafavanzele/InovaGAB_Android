@@ -1,49 +1,46 @@
 package br.com.fiap.inovagab.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.viewModelScope
+import br.com.fiap.inovagab.data.remote.model.LoginRequest
+import br.com.fiap.inovagab.data.remote.model.LoginResponse
+import br.com.fiap.inovagab.data.remote.network.RetrofitInstance
+import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    val currentUser = auth.currentUser
+    var currentUser: LoginResponse? = null
+        private set
 
     fun isUserLoggedIn(): Boolean {
-        return auth.currentUser != null
+        return currentUser != null
     }
 
     fun login(
         email: String,
         password: String,
-        onSuccess: () -> Unit,
+        onSuccess: (LoginResponse) -> Unit,
         onError: (String) -> Unit
     ) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                onSuccess()
-            }
-            .addOnFailureListener {
-                onError("E-mail ou senha inválidos.")
-            }
-    }
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.authApi.login(
+                    LoginRequest(
+                        email = email.trim(),
+                        senha = password
+                    )
+                )
 
-    fun register(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                onSuccess()
+                currentUser = response
+                onSuccess(response)
+
+            } catch (e: Exception) {
+                onError(e.message ?: "Não foi possível realizar o login.")
             }
-            .addOnFailureListener {
-                onError("Não foi possível criar a conta.")
-            }
+        }
     }
 
     fun logout() {
-        auth.signOut()
+        currentUser = null
     }
 }
