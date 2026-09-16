@@ -138,12 +138,16 @@ fun AppNavigation() {
         composable("pendingIdeas") {
             PendingIdeasScreen(
                 navController = navController,
-                ideaViewModel = ideaViewModel
+                ideaViewModel = ideaViewModel,
+                authViewModel = authViewModel
             )
         }
 
-        composable("projects") {
-            ProjectsScreen(navController = navController)
+        composable(route = "projects") {
+            ProjectsScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
 
         composable("approvals") {

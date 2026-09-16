@@ -12,6 +12,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import br.com.fiap.inovagab.data.remote.model.UpdateIdeaRequest
+import br.com.fiap.inovagab.data.remote.model.UpdateIdeaStatusRequest
+import br.com.fiap.inovagab.data.remote.model.UpdateIdeaPriorityRequest
 
 class IdeaViewModel : ViewModel() {
 
@@ -78,6 +80,77 @@ class IdeaViewModel : ViewModel() {
         }
     }
 
+    fun loadPendingIdeas(
+        token: String,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                _remoteIdeas.value =
+                    RetrofitInstance.ideaApi.getPendingIdeas(
+                        authorization = "Bearer $token"
+                    )
+            } catch (e: Exception) {
+                onError(
+                    e.message ?: "Não foi possível carregar as ideias pendentes."
+                )
+            }
+        }
+    }
+
+    fun updateRemoteIdeaStatus(
+        token: String,
+        id: String,
+        status: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                RetrofitInstance.ideaApi.updateIdeaStatus(
+                    authorization = "Bearer $token",
+                    id = id,
+                    request = UpdateIdeaStatusRequest(
+                        status = status
+                    )
+                )
+
+                onSuccess()
+
+            } catch (e: Exception) {
+                onError(
+                    e.message ?: "Não foi possível atualizar o status da ideia."
+                )
+            }
+        }
+    }
+
+    fun updateRemoteIdeaPriority(
+        token: String,
+        id: String,
+        prioritized: Boolean,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                RetrofitInstance.ideaApi.updateIdeaPriority(
+                    authorization = "Bearer $token",
+                    id = id,
+                    request = UpdateIdeaPriorityRequest(
+                        priorizada = prioritized
+                    )
+                )
+
+                onSuccess()
+
+            } catch (e: Exception) {
+                onError(
+                    e.message ?: "Não foi possível atualizar a priorização da ideia."
+                )
+            }
+        }
+    }
     fun updateIdea(
         token: String,
         id: String,

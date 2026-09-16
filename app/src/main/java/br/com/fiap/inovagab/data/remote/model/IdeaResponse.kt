@@ -9,5 +9,6 @@ data class IdeaResponse(
     val autorId: String,
     val autorNome: String,
     val status: String,
+    val priorizada: Boolean,
     val dataCriacao: String
 )

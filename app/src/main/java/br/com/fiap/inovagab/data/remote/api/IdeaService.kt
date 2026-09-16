@@ -11,6 +11,9 @@ import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.PATCH
+import br.com.fiap.inovagab.data.remote.model.UpdateIdeaStatusRequest
+import br.com.fiap.inovagab.data.remote.model.UpdateIdeaPriorityRequest
 
 interface IdeaService {
 
@@ -18,6 +21,25 @@ interface IdeaService {
     suspend fun getMyIdeas(
         @Header("Authorization") authorization: String
     ): List<IdeaResponse>
+
+    @GET("api/Ideias/pendentes")
+    suspend fun getPendingIdeas(
+        @Header("Authorization") authorization: String
+    ): List<IdeaResponse>
+
+    @PATCH("api/Ideias/{id}/status")
+    suspend fun updateIdeaStatus(
+        @Header("Authorization") authorization: String,
+        @Path("id") id: String,
+        @Body request: UpdateIdeaStatusRequest
+    ): IdeaResponse
+
+    @PATCH("api/Ideias/{id}/priorizacao")
+    suspend fun updateIdeaPriority(
+        @Header("Authorization") authorization: String,
+        @Path("id") id: String,
+        @Body request: UpdateIdeaPriorityRequest
+    ): IdeaResponse
 
     @POST("api/Ideias")
     suspend fun createIdea(

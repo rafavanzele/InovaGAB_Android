@@ -43,19 +43,32 @@ import androidx.compose.runtime.getValue
 import br.com.fiap.inovagab.data.model.Idea
 import br.com.fiap.inovagab.viewmodel.IdeaViewModel
 import br.com.fiap.inovagab.data.model.IdeaStatus
+import androidx.compose.runtime.LaunchedEffect
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import br.com.fiap.inovagab.data.remote.model.IdeaResponse
 
 @Composable
 fun PendingIdeasScreen(
     navController: NavController? = null,
-    ideaViewModel: IdeaViewModel
+    ideaViewModel: IdeaViewModel,
+    authViewModel: AuthViewModel
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val ideas by ideaViewModel.ideas.collectAsState()
+    val remoteIdeas by ideaViewModel.remoteIdeas.collectAsState()
 
-    val pendingIdeas = ideas.filter { idea ->
-        idea.status == IdeaStatus.PENDING
+    val token = authViewModel.currentUser?.token
+
+    LaunchedEffect(token) {
+        if (!token.isNullOrBlank()) {
+            ideaViewModel.loadPendingIdeas(
+                token = token,
+                onError = { error ->
+                    println(error)
+                }
+            )
+        }
     }
 
     ModalNavigationDrawer(
@@ -107,7 +120,7 @@ fun PendingIdeasScreen(
                     )
                 }
 
-                if (pendingIdeas.isEmpty()) {
+                if (remoteIdeas.isEmpty()) {
                     item {
                         Text(
                             text = "Nenhuma ideia pendente no momento.",
@@ -116,8 +129,77 @@ fun PendingIdeasScreen(
                         )
                     }
                 } else {
-                    items(pendingIdeas) { idea ->
-                        PendingIdeaCard(idea = idea, ideaViewModel = ideaViewModel)
+                    items(remoteIdeas) { idea ->
+                        PendingIdeaCard(
+                            idea = idea,
+                            onApprove = { selectedIdea ->
+                                val currentToken = token
+
+                                if (!currentToken.isNullOrBlank()) {
+                                    ideaViewModel.updateRemoteIdeaStatus(
+                                        token = currentToken,
+                                        id = selectedIdea.id,
+                                        status = "Aprovada",
+                                        onSuccess = {
+                                            ideaViewModel.loadPendingIdeas(
+                                                token = currentToken,
+                                                onError = { error ->
+                                                    println(error)
+                                                }
+                                            )
+                                        },
+                                        onError = { error ->
+                                            println(error)
+                                        }
+                                    )
+                                }
+                            },
+                            onReject = { selectedIdea ->
+                                val currentToken = token
+
+                                if (!currentToken.isNullOrBlank()) {
+                                    ideaViewModel.updateRemoteIdeaStatus(
+                                        token = currentToken,
+                                        id = selectedIdea.id,
+                                        status = "Rejeitada",
+                                        onSuccess = {
+                                            ideaViewModel.loadPendingIdeas(
+                                                token = currentToken,
+                                                onError = { error ->
+                                                    println(error)
+                                                }
+                                            )
+                                        },
+                                        onError = { error ->
+                                            println(error)
+                                        }
+                                    )
+                                }
+                            },
+                            onPriorityChange = { selectedIdea ->
+                                val currentToken = token
+
+                                if (!currentToken.isNullOrBlank()) {
+                                    ideaViewModel.updateRemoteIdeaPriority(
+                                        token = currentToken,
+                                        id = selectedIdea.id,
+                                        prioritized = !selectedIdea.priorizada,
+                                        onSuccess = {
+                                            ideaViewModel.loadPendingIdeas(
+                                                token = currentToken,
+                                                onError = { error ->
+                                                    println(error)
+                                                }
+                                            )
+                                        },
+                                        onError = { error ->
+                                            println(error)
+                                        }
+                                    )
+                                }
+                            }
+
+                        )
                     }
                 }
             }
@@ -127,8 +209,10 @@ fun PendingIdeasScreen(
 
 @Composable
 fun PendingIdeaCard(
-    idea: Idea,
-    ideaViewModel: IdeaViewModel
+    idea: IdeaResponse,
+    onApprove: (IdeaResponse) -> Unit,
+    onReject: (IdeaResponse) -> Unit,
+    onPriorityChange: (IdeaResponse) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -154,7 +238,7 @@ fun PendingIdeaCard(
                 )
 
                 Text(
-                    text = idea.title,
+                    text = idea.titulo,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1F3F66),
@@ -165,10 +249,33 @@ fun PendingIdeaCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = idea.description,
+                text = idea.descricao,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF6B7280)
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    onPriorityChange(idea)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (idea.priorizada) {
+                        Color(0xFFFFA000)
+                    } else {
+                        Color(0xFF1F3F66)
+                    }
+                )
+            ) {
+                Text(
+                    text = if (idea.priorizada) {
+                        "Despriorizar"
+                    } else {
+                        "Priorizar"
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -177,10 +284,7 @@ fun PendingIdeaCard(
             ) {
                 Button(
                     onClick = {
-                        ideaViewModel.updateIdeaStatus(
-                            ideaId = idea.id,
-                            newStatus = IdeaStatus.APPROVED
-                        )
+                        onApprove(idea)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF4CAF50)
@@ -191,10 +295,7 @@ fun PendingIdeaCard(
 
                 Button(
                     onClick = {
-                        ideaViewModel.updateIdeaStatus(
-                            ideaId = idea.id,
-                            newStatus = IdeaStatus.REJECTED
-                        )
+                        onReject(idea)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF44336)

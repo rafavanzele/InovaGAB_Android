@@ -5,6 +5,7 @@ import br.com.fiap.inovagab.data.remote.api.AuthService
 import br.com.fiap.inovagab.data.remote.api.StrategicGuidanceService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import br.com.fiap.inovagab.data.remote.api.ProjectService
 
 object RetrofitInstance {
 
@@ -25,6 +26,10 @@ object RetrofitInstance {
 
     val ideaApi: IdeaService by lazy {
         retrofit.create(IdeaService::class.java)
+    }
+
+    val projectApi: ProjectService by lazy {
+        retrofit.create(ProjectService::class.java)
     }
 
     val api: StrategicGuidanceService by lazy {

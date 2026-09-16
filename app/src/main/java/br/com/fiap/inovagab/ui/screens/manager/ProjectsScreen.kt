@@ -48,14 +48,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import androidx.compose.runtime.LaunchedEffect
+import br.com.fiap.inovagab.data.remote.model.ProjectResponse
+import br.com.fiap.inovagab.ui.viewmodel.StrategicGuidanceViewModel
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.IconButton
+import br.com.fiap.inovagab.data.remote.model.CreateProjectRequest
+import br.com.fiap.inovagab.data.remote.model.UpdateProjectRequest
+import androidx.compose.foundation.lazy.rememberLazyListState
 
 @Composable
 fun ProjectsScreen(
     navController: NavController? = null,
-    viewModel: ProjectViewModel = viewModel()
+    viewModel: ProjectViewModel = viewModel(),
+    authViewModel: AuthViewModel,
+    strategicGuidanceViewModel: StrategicGuidanceViewModel = viewModel()
 ) {
 
     val projects by viewModel.projects.collectAsState()
+
+    val remoteProjects by viewModel.remoteProjects.collectAsState()
+
+    val guidances by strategicGuidanceViewModel.guidances.collectAsState()
+
+    val token = authViewModel.currentUser?.token
+
+    LaunchedEffect(token) {
+        if (!token.isNullOrBlank()) {
+            viewModel.loadProjects(
+                token = token,
+                onError = { error ->
+                    println(error)
+                }
+            )
+
+            strategicGuidanceViewModel.loadStrategicGuidances(token)
+        }
+    }
 
     var showForm by remember { mutableStateOf(false) }
 
@@ -67,9 +100,26 @@ fun ProjectsScreen(
     var expectedReturn by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
 
+    var selectedGuidanceId by remember {
+        mutableStateOf("")
+    }
+
+    var selectedGuidanceTitle by remember {
+        mutableStateOf("")
+    }
+
+    var guidanceMenuExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var editingProject by remember {
+        mutableStateOf<ProjectResponse?>(null)
+    }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val listState = rememberLazyListState()
 
 
     ModalNavigationDrawer(
@@ -104,6 +154,7 @@ fun ProjectsScreen(
         ) { paddingValues ->
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
@@ -194,6 +245,59 @@ fun ProjectsScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 )
 
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+
+                                    OutlinedTextField(
+                                        value = selectedGuidanceTitle,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = {
+                                            Text("Diretriz estratégica")
+                                        },
+                                        placeholder = {
+                                            Text("Selecione uma diretriz")
+                                        },
+                                        trailingIcon = {
+                                            IconButton(
+                                                onClick = {
+                                                    guidanceMenuExpanded = true
+                                                }
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.ArrowDropDown,
+                                                    contentDescription = "Selecionar diretriz"
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+
+                                    DropdownMenu(
+                                        expanded = guidanceMenuExpanded,
+                                        onDismissRequest = {
+                                            guidanceMenuExpanded = false
+                                        }
+                                    ) {
+
+                                        guidances.forEach { guidance ->
+
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(guidance.titulo)
+                                                },
+                                                onClick = {
+                                                    selectedGuidanceId = guidance.id
+                                                    selectedGuidanceTitle = guidance.titulo
+                                                    guidanceMenuExpanded = false
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+
+
                                 OutlinedTextField(
                                     value = responsible,
                                     onValueChange = {
@@ -265,6 +369,7 @@ fun ProjectsScreen(
                                         if (
                                             title.isBlank() ||
                                             description.isBlank() ||
+                                            selectedGuidanceId.isBlank() ||
                                             responsible.isBlank() ||
                                             deadline.isBlank() ||
                                             investment.isBlank() ||
@@ -276,41 +381,117 @@ fun ProjectsScreen(
 
                                         showError = false
 
-                                        viewModel.addProject(
+                                        val currentToken = token
 
-                                            Project(
-                                                id = projects.size + 1,
-                                                title = title,
-                                                description = description,
-                                                responsible = responsible,
-                                                status = "Iniciado",
-                                                deadline = deadline,
-                                                investment = investment,
-                                                expectedReturn = expectedReturn,
-                                                result = "Em andamento",
-                                                progress = 0f
-                                            )
-                                        )
+                                        if (!currentToken.isNullOrBlank()) {
 
-                                        title = ""
-                                        description = ""
-                                        responsible = ""
-                                        deadline = ""
-                                        investment = ""
-                                        expectedReturn = ""
+                                            val currentEditingProject = editingProject
 
-                                        showForm = false
+                                            if (currentEditingProject == null) {
 
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = "Projeto cadastrado com sucesso!"
-                                            )
+                                                viewModel.createRemoteProject(
+                                                    token = currentToken,
+                                                    request = CreateProjectRequest(
+                                                        titulo = title,
+                                                        descricao = description,
+                                                        diretrizId = selectedGuidanceId,
+                                                        responsavel = responsible,
+                                                        prazo = deadline,
+                                                        investimento = investment,
+                                                        investimentoValor = null,
+                                                        retornoPrevisto = expectedReturn
+                                                    ),
+                                                    onSuccess = {
+
+                                                        viewModel.loadProjects(
+                                                            token = currentToken,
+                                                            onError = { error ->
+                                                                println(error)
+                                                            }
+                                                        )
+
+                                                        title = ""
+                                                        description = ""
+                                                        responsible = ""
+                                                        deadline = ""
+                                                        investment = ""
+                                                        expectedReturn = ""
+                                                        selectedGuidanceId = ""
+                                                        selectedGuidanceTitle = ""
+                                                        editingProject = null
+
+                                                        showForm = false
+
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar(
+                                                                message = "Projeto cadastrado com sucesso!"
+                                                            )
+                                                        }
+                                                    },
+                                                    onError = { error ->
+                                                        println(error)
+                                                    }
+                                                )
+
+                                            } else {
+
+                                                viewModel.updateRemoteProject(
+                                                    token = currentToken,
+                                                    id = currentEditingProject.id,
+                                                    request = UpdateProjectRequest(
+                                                        titulo = title,
+                                                        descricao = description,
+                                                        responsavel = responsible,
+                                                        prazo = deadline,
+                                                        investimento = investment,
+                                                        investimentoValor = currentEditingProject.investimentoValor,
+                                                        retornoPrevisto = expectedReturn,
+                                                        status = currentEditingProject.status,
+                                                        etapa = currentEditingProject.etapa,
+                                                        progresso = currentEditingProject.progresso
+                                                    ),
+                                                    onSuccess = {
+
+                                                        viewModel.loadProjects(
+                                                            token = currentToken,
+                                                            onError = { error ->
+                                                                println(error)
+                                                            }
+                                                        )
+
+                                                        title = ""
+                                                        description = ""
+                                                        responsible = ""
+                                                        deadline = ""
+                                                        investment = ""
+                                                        expectedReturn = ""
+                                                        selectedGuidanceId = ""
+                                                        selectedGuidanceTitle = ""
+                                                        editingProject = null
+
+                                                        showForm = false
+
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar(
+                                                                message = "Projeto atualizado com sucesso!"
+                                                            )
+                                                        }
+                                                    },
+                                                    onError = { error ->
+                                                        println(error)
+                                                    }
+                                                )
+                                            }
                                         }
                                     }
                                 ) {
 
                                     Text(
-                                        text = "Cadastrar Projeto",
+                                        text = if (editingProject == null) {
+                                            "Cadastrar Projeto"
+                                        } else {
+                                            "Salvar alterações"
+                                        },
                                         modifier = Modifier.padding(18.dp),
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold
@@ -321,8 +502,34 @@ fun ProjectsScreen(
                     }
                 }
 
-                items(projects) { project ->
-                    ProjectCard(project = project)
+                items(remoteProjects) { project ->
+                    ProjectCard(
+                        project = project,
+                        onEdit = { selectedProject ->
+
+                            editingProject = selectedProject
+
+                            title = selectedProject.titulo
+                            description = selectedProject.descricao
+                            responsible = selectedProject.responsavel
+                            deadline = selectedProject.prazo
+                            investment = selectedProject.investimento
+                            expectedReturn = selectedProject.retornoPrevisto
+
+                            selectedGuidanceId = selectedProject.diretrizId
+
+                            selectedGuidanceTitle =
+                                guidances.firstOrNull {
+                                    it.id == selectedProject.diretrizId
+                                }?.titulo ?: ""
+
+                            showForm = true
+
+                            scope.launch {
+                                listState.animateScrollToItem(0)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -331,7 +538,8 @@ fun ProjectsScreen(
 
 @Composable
 fun ProjectCard(
-    project: Project
+    project: ProjectResponse,
+    onEdit: (ProjectResponse) -> Unit
 ) {
 
     Card(
@@ -367,7 +575,7 @@ fun ProjectCard(
                 )
 
                 Text(
-                    text = project.title,
+                    text = project.titulo,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1F3F66)
@@ -377,7 +585,7 @@ fun ProjectCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = project.description,
+                text = project.descricao,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF6B7280)
             )
@@ -385,14 +593,14 @@ fun ProjectCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             LinearProgressIndicator(
-                progress = { project.progress },
+                progress = { project.progresso / 100f },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "${(project.progress * 100).toInt()}% concluído",
+                text = "${project.progresso.toInt()}% concluído",
                 color = Color(0xFF1F3F66),
                 fontWeight = FontWeight.SemiBold
             )
@@ -405,41 +613,62 @@ fun ProjectCard(
             )
 
             Text(
-                text = "Responsável: ${project.responsible}",
+                text = "Responsável: ${project.responsavel}",
                 color = Color(0xFF6B7280)
             )
 
             Text(
-                text = "Prazo: ${project.deadline}",
+                text = "Prazo: ${project.prazo}",
                 color = Color(0xFF6B7280)
             )
 
             Text(
-                text = "Investimento: ${project.investment}",
+                text = "Investimento: ${project.investimento}",
                 color = Color(0xFF6B7280)
             )
 
             Text(
-                text = "Retorno previsto: ${project.expectedReturn}",
+                text = "Retorno previsto: ${project.retornoPrevisto}",
                 color = Color(0xFF6B7280)
             )
 
             Text(
-                text = "Resultado: ${project.result}",
+                text = "Resultado: ${project.resultado}",
                 color = Color(0xFF6B7280)
             )
 
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF1F3F66)
+                ),
+                onClick = {
+                    onEdit(project)
+                }
+            ) {
+                Text(
+                    text = "Editar projeto",
+                    modifier = Modifier.padding(16.dp),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
         }
     }
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun ProjectsScreenPreview() {
-
-    InovaGABTheme {
-        ProjectsScreen()
-    }
-}
-
+//@Preview(showSystemUi = true)
+//@Composable
+//fun ProjectsScreenPreview() {
+//
+//    InovaGABTheme {
+//        ProjectsScreen()
+//    }
+//}
+//
