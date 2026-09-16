@@ -120,15 +120,6 @@ fun ManagerHomeScreen(navController: NavController? = null) {
                 )
 
                 ManagerActionCard(
-                    title = "Aprovações realizadas",
-                    description = "Visualize ideias aprovadas recentemente.",
-                    icon = Icons.Default.CheckCircle,
-                    onClick = {
-                        navController?.navigate("approvals")
-                    }
-                )
-
-                ManagerActionCard(
                     title = "Equipes e colaboradores",
                     description = "Acompanhe participação e desempenho.",
                     icon = Icons.Default.Groups,

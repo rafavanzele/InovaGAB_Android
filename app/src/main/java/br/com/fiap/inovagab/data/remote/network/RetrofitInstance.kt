@@ -6,6 +6,7 @@ import br.com.fiap.inovagab.data.remote.api.StrategicGuidanceService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import br.com.fiap.inovagab.data.remote.api.ProjectService
+import br.com.fiap.inovagab.data.remote.api.TeamService
 
 object RetrofitInstance {
 
@@ -34,5 +35,9 @@ object RetrofitInstance {
 
     val api: StrategicGuidanceService by lazy {
         retrofit.create(StrategicGuidanceService::class.java)
+    }
+
+    val teamApi: TeamService by lazy {
+        retrofit.create(TeamService::class.java)
     }
 }

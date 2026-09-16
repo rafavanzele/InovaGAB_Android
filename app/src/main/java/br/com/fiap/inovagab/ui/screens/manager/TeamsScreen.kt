@@ -38,15 +38,38 @@ import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
 import br.com.fiap.inovagab.data.mock.TeamMock
 import br.com.fiap.inovagab.data.model.Team
-
+import br.com.fiap.inovagab.viewmodel.TeamViewModel
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import br.com.fiap.inovagab.data.remote.model.TeamResponse
 
 @Composable
-fun TeamsScreen(navController: NavController? = null) {
+fun TeamsScreen(
+    navController: NavController? = null,
+    teamViewModel: TeamViewModel,
+    authViewModel: AuthViewModel
+) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val teams = TeamMock.teams
+    val teams by teamViewModel.teams.collectAsState()
+
+    val token = authViewModel.currentUser?.token
+
+    LaunchedEffect(token) {
+        if (!token.isNullOrBlank()) {
+            teamViewModel.loadTeams(
+                token = token,
+                onError = { error ->
+                    println(error)
+                }
+            )
+        }
+    }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -110,7 +133,7 @@ fun TeamsScreen(navController: NavController? = null) {
 }
 
 @Composable
-fun TeamCard(team: Team) {
+fun TeamCard(team: TeamResponse) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -137,7 +160,7 @@ fun TeamCard(team: Team) {
                 )
 
                 Text(
-                    text = team.name,
+                    text = team.nome,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1F3F66),
@@ -148,25 +171,25 @@ fun TeamCard(team: Team) {
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "Colaboradores: ${team.members}",
+                text = "Colaboradores: ${team.membros.joinToString(", ")}",
                 color = Color(0xFF6B7280)
             )
 
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Ideias enviadas: ${team.ideasSubmitted}",
-                color = Color(0xFF6B7280)
+                    text = "Responsável: ${team.responsavel}",
+                    color = Color(0xFF6B7280)
             )
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun TeamsScreenPreview() {
-    InovaGABTheme {
-        TeamsScreen()
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun TeamsScreenPreview() {
+//    InovaGABTheme {
+//        TeamsScreen()
+//    }
+//}
 

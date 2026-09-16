@@ -12,7 +12,6 @@ import br.com.fiap.inovagab.ui.screens.leader.LeaderHomeScreen
 import br.com.fiap.inovagab.ui.screens.leader.StrategicGuidanceScreen
 import br.com.fiap.inovagab.ui.screens.leader.StrategicIndicatorsScreen
 import br.com.fiap.inovagab.ui.screens.leader.TeamEngagementScreen
-import br.com.fiap.inovagab.ui.screens.manager.ApprovalsScreen
 import br.com.fiap.inovagab.ui.screens.manager.ManagerHomeScreen
 import br.com.fiap.inovagab.ui.screens.manager.PendingIdeasScreen
 import br.com.fiap.inovagab.ui.screens.manager.ProjectsScreen
@@ -28,6 +27,7 @@ import br.com.fiap.inovagab.ui.viewmodel.ContributorRankingViewModel
 import br.com.fiap.inovagab.viewmodel.AuthViewModel
 import br.com.fiap.inovagab.ui.screens.common.ProfileScreen
 import br.com.fiap.inovagab.ui.screens.common.NotificationsScreen
+import br.com.fiap.inovagab.viewmodel.TeamViewModel
 
 @Composable
 fun AppNavigation() {
@@ -35,6 +35,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val ideaViewModel: IdeaViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
+    val teamViewModel: TeamViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -150,15 +151,12 @@ fun AppNavigation() {
             )
         }
 
-        composable("approvals") {
-            ApprovalsScreen(
+        composable(route = "teams") {
+            TeamsScreen(
                 navController = navController,
-                ideaViewModel = ideaViewModel
+                teamViewModel = teamViewModel,
+                authViewModel = authViewModel
             )
-        }
-
-        composable("teams") {
-            TeamsScreen(navController = navController)
         }
 
         composable("strategicIndicators") {
