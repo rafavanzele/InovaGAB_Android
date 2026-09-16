@@ -7,6 +7,7 @@ import br.com.fiap.inovagab.data.repository.StrategicGuidanceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import br.com.fiap.inovagab.data.remote.network.RetrofitInstance
 
 class StrategicGuidanceViewModel : ViewModel() {
 
@@ -50,6 +51,33 @@ class StrategicGuidanceViewModel : ViewModel() {
 
                 _errorMessage.value =
                     "Erro ao carregar orientações."
+
+            } finally {
+
+                _isLoading.value = false
+
+            }
+        }
+    }
+
+    fun loadStrategicGuidances(token: String) {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            try {
+
+                _guidances.value =
+                    RetrofitInstance.api.getStrategicGuidances(
+                        authorization = "Bearer $token"
+                    )
+
+            } catch (e: Exception) {
+
+                _errorMessage.value =
+                    e.message ?: "Erro ao carregar diretrizes estratégicas."
 
             } finally {
 

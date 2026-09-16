@@ -43,16 +43,38 @@ import br.com.fiap.inovagab.viewmodel.IdeaViewModel
 import br.com.fiap.inovagab.data.model.Idea
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import androidx.compose.runtime.LaunchedEffect
+import br.com.fiap.inovagab.data.remote.model.StrategicGuidance
+import br.com.fiap.inovagab.data.remote.network.RetrofitInstance
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.DropdownMenuItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateIdeaScreen(
     navController: NavController? = null,
-    ideaViewModel: IdeaViewModel
+    ideaViewModel: IdeaViewModel,
+    authViewModel: AuthViewModel
 ) {
 
     var ideaTitle by remember { mutableStateOf("") }
     var ideaDescription by remember { mutableStateOf("") }
+    var ideaCategory by remember { mutableStateOf("") }
+
+    var strategicGuidances by remember {
+        mutableStateOf<List<StrategicGuidance>>(emptyList())
+    }
+
+    var selectedGuidance by remember {
+        mutableStateOf<StrategicGuidance?>(null)
+    }
+
+    var guidanceMenuExpanded by remember {
+        mutableStateOf(false)
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     val drawerState = rememberDrawerState(
@@ -60,6 +82,26 @@ fun CreateIdeaScreen(
     )
 
     val scope = rememberCoroutineScope()
+
+    val token = authViewModel.currentUser?.token
+
+    LaunchedEffect(token) {
+        if (!token.isNullOrBlank()) {
+            try {
+                strategicGuidances =
+                    RetrofitInstance.api.getStrategicGuidances(
+                        authorization = "Bearer $token"
+                    )
+            } catch (e: Exception) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = e.message
+                            ?: "Não foi possível carregar as diretrizes estratégicas."
+                    )
+                }
+            }
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -187,26 +229,141 @@ fun CreateIdeaScreen(
                     )
                 )
 
-                Button(
-                    onClick = {
-                        val newIdea = Idea(
-                            id = (0..9999).random(),
-                            title = ideaTitle,
-                            description = ideaDescription
+                OutlinedTextField(
+                    value = ideaCategory,
+                    onValueChange = { ideaCategory = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "Categoria")
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedLabelColor = Color(0xFF1F3F66),
+                        unfocusedLabelColor = Color(0xFF6B7280),
+                        cursorColor = Color(0xFF1F3F66),
+                        focusedIndicatorColor = Color(0xFF1F3F66),
+                        unfocusedIndicatorColor = Color.LightGray,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    )
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = guidanceMenuExpanded,
+                    onExpandedChange = {
+                        guidanceMenuExpanded = !guidanceMenuExpanded
+                    }
+                ) {
+                    OutlinedTextField(
+                        value = selectedGuidance?.titulo ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        label = {
+                            Text(text = "Diretriz estratégica")
+                        },
+                        placeholder = {
+                            Text(text = "Selecione uma diretriz")
+                        },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = guidanceMenuExpanded
+                            )
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedLabelColor = Color(0xFF1F3F66),
+                            unfocusedLabelColor = Color(0xFF6B7280),
+                            focusedIndicatorColor = Color(0xFF1F3F66),
+                            unfocusedIndicatorColor = Color.LightGray,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent
                         )
+                    )
 
-                        ideaViewModel.addIdea(newIdea)
-
-                        ideaTitle = ""
-                        ideaDescription = ""
-
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Ideia cadastrada com sucesso!"
+                    ExposedDropdownMenu(
+                        expanded = guidanceMenuExpanded,
+                        onDismissRequest = {
+                            guidanceMenuExpanded = false
+                        }
+                    ) {
+                        strategicGuidances.forEach { guidance ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = guidance.titulo)
+                                },
+                                onClick = {
+                                    selectedGuidance = guidance
+                                    guidanceMenuExpanded = false
+                                }
                             )
                         }
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        val currentToken = token
+                        val currentGuidance = selectedGuidance
+
+                        if (currentToken.isNullOrBlank()) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Sessão inválida. Faça login novamente."
+                                )
+                            }
+                            return@Button
+                        }
+
+                        if (currentGuidance == null) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Selecione uma diretriz estratégica."
+                                )
+                            }
+                            return@Button
+                        }
+
+                        ideaViewModel.createIdea(
+                            token = currentToken,
+                            title = ideaTitle,
+                            description = ideaDescription,
+                            category = ideaCategory,
+                            strategicGuidanceId = currentGuidance.id,
+                            onSuccess = {
+
+                                ideaTitle = ""
+                                ideaDescription = ""
+                                ideaCategory = ""
+                                selectedGuidance = null
+
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Ideia cadastrada com sucesso!"
+                                    )
+                                }
+                            },
+                            onError = { error ->
+
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = error
+                                    )
+                                }
+                            }
+                        )
                     },
-                    enabled = ideaTitle.isNotBlank() && ideaDescription.isNotBlank(),
+                    enabled =
+                        ideaTitle.isNotBlank() &&
+                                ideaDescription.isNotBlank() &&
+                                ideaCategory.isNotBlank() &&
+                                selectedGuidance != null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),

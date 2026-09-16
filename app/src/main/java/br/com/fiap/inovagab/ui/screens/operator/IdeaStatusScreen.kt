@@ -44,6 +44,11 @@ import br.com.fiap.inovagab.data.model.IdeaStatus
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.offset
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import br.com.fiap.inovagab.data.remote.model.IdeaResponse
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 
 data class ProposalStatus(
@@ -55,13 +60,28 @@ data class ProposalStatus(
 @Composable
 fun IdeaStatusScreen(
     navController: NavController? = null,
-    ideaViewModel: IdeaViewModel
+    ideaViewModel: IdeaViewModel,
+    authViewModel: AuthViewModel
 ) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val ideas by ideaViewModel.ideas.collectAsState()
 
+    val remoteIdeas by ideaViewModel.remoteIdeas.collectAsState()
+
+    val token = authViewModel.currentUser?.token
+
+    LaunchedEffect(token) {
+        if (!token.isNullOrBlank()) {
+            ideaViewModel.loadMyIdeas(
+                token = token,
+                onError = { error ->
+                    println(error)
+                }
+            )
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -88,7 +108,7 @@ fun IdeaStatusScreen(
             containerColor = Color(0xFFF5F7FB)
         ) { paddingValues ->
 
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
@@ -96,24 +116,28 @@ fun IdeaStatusScreen(
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
 
-                Text(
-                    text = "Status das propostas",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1F3F66)
-                )
+                item {
+                    Text(
+                        text = "Status das propostas",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1F3F66)
+                    )
 
-                Text(
-                    text = "Acompanhe em qual etapa estão suas ideias enviadas.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF6B7280)
-                )
+                    Text(
+                        text = "Acompanhe em qual etapa estão suas ideias enviadas.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF6B7280)
+                    )
+                }
 
-                if (ideas.isEmpty()) {
-                    EmptyIdeaStatusCard()
+                if (remoteIdeas.isEmpty()) {
+                    item {
+                        EmptyIdeaStatusCard()
+                    }
                 } else {
-                    ideas.forEach { idea ->
-                        ProposalStatusCard(idea = idea)
+                    items(remoteIdeas) { idea ->
+                        RemoteProposalStatusCard(idea = idea)
                     }
                 }
             }
@@ -229,6 +253,121 @@ fun ProposalStatusCard(idea: Idea) {
 
 
 @Composable
+fun RemoteProposalStatusCard(idea: IdeaResponse) {
+
+    val currentStep = when (idea.status.lowercase()) {
+        "pendente" -> "Em análise"
+        "aprovada", "aprovado" -> "Aprovada"
+        "rejeitada", "rejeitado" -> "Recusada"
+        else -> idea.status
+    }
+
+    val responsible = when (idea.status.lowercase()) {
+        "pendente" -> "Gestor responsável"
+        "aprovada", "aprovado" -> "Comitê de inovação"
+        "rejeitada", "rejeitado" -> "Gestor responsável"
+        else -> "Responsável não informado"
+    }
+
+    val statusColor = when (idea.status.lowercase()) {
+        "aprovada", "aprovado" -> Color(0xFF4CAF50)
+        "pendente" -> Color(0xFFFF9800)
+        "rejeitada", "rejeitado" -> Color(0xFFF44336)
+        else -> Color(0xFF6B7280)
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Timeline,
+                    contentDescription = null,
+                    tint = Color(0xFF1F3F66),
+                    modifier = Modifier.size(30.dp)
+                )
+
+                Text(
+                    text = idea.titulo,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1F3F66),
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Etapa atual:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF6B7280)
+                )
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = statusColor.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(50.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                statusColor,
+                                CircleShape
+                            )
+                    )
+
+                    Text(
+                        text = currentStep,
+                        color = statusColor,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = "Responsável: $responsible",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF6B7280)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            RemoteProposalTimeline(
+                status = idea.status
+            )
+        }
+    }
+}
+
+
+@Composable
 fun ProposalTimeline(status: IdeaStatus) {
 
     val steps = when (status) {
@@ -309,6 +448,106 @@ fun ProposalTimeline(status: IdeaStatus) {
     }
 }
 
+
+@Composable
+fun RemoteProposalTimeline(status: String) {
+
+    val steps = when (status.lowercase()) {
+
+        "pendente" -> listOf(
+            "Enviada" to true,
+            "Em análise" to true,
+            "Concluída" to false
+        )
+
+        "aprovada", "aprovado" -> listOf(
+            "Enviada" to true,
+            "Em análise" to true,
+            "Aprovada" to true
+        )
+
+        "rejeitada", "rejeitado" -> listOf(
+            "Enviada" to true,
+            "Em análise" to true,
+            "Recusada" to true
+        )
+
+        else -> listOf(
+            "Enviada" to true,
+            "Em análise" to false,
+            "Concluída" to false
+        )
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            steps.forEachIndexed { index, step ->
+
+                val isActive = step.second
+
+                Spacer(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .background(
+                            color = if (isActive)
+                                Color(0xFF1F3F66)
+                            else
+                                Color(0xFFD1D5DB),
+                            shape = CircleShape
+                        )
+                )
+
+                if (index < steps.lastIndex) {
+                    Spacer(
+                        modifier = Modifier
+                            .height(3.dp)
+                            .weight(1f)
+                            .background(
+                                color =
+                                    if (isActive && steps[index + 1].second)
+                                        Color(0xFF1F3F66)
+                                    else
+                                        Color(0xFFD1D5DB)
+                            )
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            steps.forEach { step ->
+
+                val label = step.first
+                val isActive = step.second
+
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight =
+                        if (isActive)
+                            FontWeight.SemiBold
+                        else
+                            FontWeight.Normal,
+                    color =
+                        if (isActive)
+                            Color(0xFF1F3F66)
+                        else
+                            Color(0xFF9CA3AF),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun EmptyIdeaStatusCard() {

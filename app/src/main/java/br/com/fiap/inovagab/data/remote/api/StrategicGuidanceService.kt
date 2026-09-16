@@ -9,11 +9,17 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Header
 
 interface StrategicGuidanceService {
 
     @GET("orientacoes")
     suspend fun getGuidances(): List<StrategicGuidance>
+
+    @GET("api/DiretrizesEstrategicas")
+    suspend fun getStrategicGuidances(
+        @Header("Authorization") authorization: String
+    ): List<StrategicGuidance>
 
     @POST("orientacoes")
     suspend fun createGuidance(

@@ -1,4 +1,5 @@
 package br.com.fiap.inovagab.data.remote.network
+import br.com.fiap.inovagab.data.remote.api.IdeaService
 
 import br.com.fiap.inovagab.data.remote.api.AuthService
 import br.com.fiap.inovagab.data.remote.api.StrategicGuidanceService
@@ -20,6 +21,10 @@ object RetrofitInstance {
 
     val authApi: AuthService by lazy {
         retrofit.create(AuthService::class.java)
+    }
+
+    val ideaApi: IdeaService by lazy {
+        retrofit.create(IdeaService::class.java)
     }
 
     val api: StrategicGuidanceService by lazy {

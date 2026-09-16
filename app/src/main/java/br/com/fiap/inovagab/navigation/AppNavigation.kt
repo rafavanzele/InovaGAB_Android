@@ -114,21 +114,24 @@ fun AppNavigation() {
         composable("createIdea") {
             CreateIdeaScreen(
                 navController = navController,
-                ideaViewModel = ideaViewModel
+                ideaViewModel = ideaViewModel,
+                authViewModel = authViewModel
             )
         }
 
         composable("myIdeas") {
             MyIdeasScreen(
                 navController = navController,
-                ideaViewModel = ideaViewModel
+                ideaViewModel = ideaViewModel,
+                authViewModel = authViewModel
             )
         }
 
         composable("ideaStatus") {
             IdeaStatusScreen(
                 navController = navController,
-                ideaViewModel = ideaViewModel
+                ideaViewModel = ideaViewModel,
+                authViewModel = authViewModel
             )
         }
 
