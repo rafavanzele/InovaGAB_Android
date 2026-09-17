@@ -11,6 +11,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Header
 import br.com.fiap.inovagab.data.remote.model.CreateStrategicGuidanceRequest
+import br.com.fiap.inovagab.data.remote.model.CreateStrategicIndicatorRequest
 
 interface StrategicGuidanceService {
 
@@ -41,8 +42,31 @@ interface StrategicGuidanceService {
         @Path("id") id: String
     )
 
-    @GET("strategicIndicators")
-    suspend fun getIndicators(): List<StrategicIndicator>
+    @GET("api/IndicadoresEstrategicos")
+    suspend fun getIndicators(
+        @Header("Authorization") authorization: String
+    ): List<StrategicIndicator>
+
+    @POST("api/IndicadoresEstrategicos")
+    suspend fun createIndicator(
+        @Header("Authorization") authorization: String,
+        @Body request: CreateStrategicIndicatorRequest
+    ): StrategicIndicator
+
+
+    @PUT("api/IndicadoresEstrategicos/{id}")
+    suspend fun updateIndicator(
+        @Header("Authorization") authorization: String,
+        @Path("id") id: String,
+        @Body request: CreateStrategicIndicatorRequest
+    ): StrategicIndicator
+
+
+    @DELETE("api/IndicadoresEstrategicos/{id}")
+    suspend fun deleteIndicator(
+        @Header("Authorization") authorization: String,
+        @Path("id") id: String
+    )
 
     @GET("achievedResults")
     suspend fun getAchievedResults(): List<AchievedResult>

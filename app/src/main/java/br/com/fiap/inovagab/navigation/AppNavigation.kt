@@ -28,6 +28,7 @@ import br.com.fiap.inovagab.viewmodel.AuthViewModel
 import br.com.fiap.inovagab.ui.screens.common.ProfileScreen
 import br.com.fiap.inovagab.ui.screens.common.NotificationsScreen
 import br.com.fiap.inovagab.viewmodel.TeamViewModel
+import br.com.fiap.inovagab.ui.screens.leader.LeaderProjectsScreen
 
 @Composable
 fun AppNavigation() {
@@ -159,8 +160,11 @@ fun AppNavigation() {
             )
         }
 
-        composable("strategicIndicators") {
-            StrategicIndicatorsScreen(navController = navController)
+        composable(route = "strategicIndicators") {
+            StrategicIndicatorsScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
 
         composable("achievedResults") {
@@ -194,6 +198,13 @@ fun AppNavigation() {
             StrategicGuidanceScreen(
                 navController = navController,
                 viewModel = strategicViewModel,
+                authViewModel = authViewModel
+            )
+        }
+
+        composable(route = "leaderProjects") {
+            LeaderProjectsScreen(
+                navController = navController,
                 authViewModel = authViewModel
             )
         }

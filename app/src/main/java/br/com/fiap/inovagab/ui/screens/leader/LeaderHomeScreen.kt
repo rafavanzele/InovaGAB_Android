@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Assignment
 
 @Composable
 fun LeaderHomeScreen(navController: NavController) {
@@ -105,6 +106,15 @@ fun LeaderHomeScreen(navController: NavController) {
                     text = "Acompanhe indicadores estratégicos, resultados e impacto das iniciativas de inovação.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF6B7280)
+                )
+
+                LeaderActionCard(
+                    title = "Projetos em andamento",
+                    description = "Acompanhe status, progresso, prazo, investimento e retorno.",
+                    icon = Icons.Default.Assignment,
+                    onClick = {
+                        navController.navigate("leaderProjects")
+                    }
                 )
 
                 LeaderActionCard(
@@ -249,12 +259,12 @@ fun LeaderActionCard(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LeaderHomeScreenPreview() {
-    InovaGABTheme {
-        LeaderHomeScreen(
-            navController = rememberNavController()
-        )
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun LeaderHomeScreenPreview() {
+//    InovaGABTheme {
+//        LeaderHomeScreen(
+//            navController = rememberNavController()
+//        )
+//    }
+//}
