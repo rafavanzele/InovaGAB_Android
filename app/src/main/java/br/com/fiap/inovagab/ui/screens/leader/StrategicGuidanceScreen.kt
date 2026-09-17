@@ -45,22 +45,37 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
+import androidx.compose.runtime.LaunchedEffect
+import br.com.fiap.inovagab.data.remote.model.CreateStrategicGuidanceRequest
 
 @Composable
 fun StrategicGuidanceScreen(
     navController: NavController,
-    viewModel: StrategicGuidanceViewModel
+    viewModel: StrategicGuidanceViewModel,
+    authViewModel: AuthViewModel
 ) {
     val guidances by viewModel.guidances.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+
+    val token = authViewModel.currentUser?.token
+
+    LaunchedEffect(token) {
+        if (!token.isNullOrBlank()) {
+            viewModel.loadStrategicGuidances(token)
+        }
+    }
 
     var showForm by remember { mutableStateOf(false) }
     var editingGuidance by remember { mutableStateOf<StrategicGuidance?>(null) }
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var objective by remember { mutableStateOf("") }
+    var responsible by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
+    var campaign by remember { mutableStateOf("") }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -148,31 +163,53 @@ fun StrategicGuidanceScreen(
                                 StrategicGuidanceForm(
                                     title = title,
                                     description = description,
+                                    objective = objective,
+                                    responsible = responsible,
                                     category = category,
+                                    campaign = campaign,
                                     onTitleChange = { title = it },
                                     onDescriptionChange = { description = it },
+                                    onObjectiveChange = { objective = it },
+                                    onResponsibleChange = { responsible = it },
                                     onCategoryChange = { category = it },
+                                    onCampaignChange = { campaign = it },
                                     onSaveClick = {
-                                        val guidance = StrategicGuidance(
-                                            id = editingGuidance?.id ?: "",
+
+                                        val request = CreateStrategicGuidanceRequest(
                                             titulo = title,
                                             descricao = description,
-                                            categoria = category
+                                            objetivo = objective,
+                                            responsavel = responsible,
+                                            categoria = category,
+                                            campanha = campaign
                                         )
+
 
                                         if (editingGuidance == null) {
 
-                                            viewModel.createGuidance(guidance)
 
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    "Orientação cadastrada com sucesso"
+                                            if (!token.isNullOrBlank()) {
+
+                                                viewModel.createGuidance(
+                                                    token,
+                                                    request
                                                 )
-                                            }
 
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        "Orientação cadastrada com sucesso"
+                                                    )
+                                                }
+                                            }
                                         } else {
 
-                                            viewModel.updateGuidance(guidance)
+                                            if (!token.isNullOrBlank()) {
+                                                viewModel.updateGuidance(
+                                                    token,
+                                                    editingGuidance!!.id,
+                                                    request
+                                                )
+                                            }
 
                                             scope.launch {
                                                 snackbarHostState.showSnackbar(
@@ -205,9 +242,13 @@ fun StrategicGuidanceScreen(
                                     onEditClick = {
                                         showForm = true
                                         editingGuidance = guidance
+
                                         title = guidance.titulo
                                         description = guidance.descricao
+                                        objective = guidance.objetivo
+                                        responsible = guidance.responsavel
                                         category = guidance.categoria
+                                        campaign = guidance.campanha
                                     },
                                     onDeleteClick = {
                                         if (guidance.id.isNullOrBlank() || guidance.id.length < 3) {
@@ -244,7 +285,12 @@ fun StrategicGuidanceScreen(
                                 onClick = {
                                     guidanceToDelete?.let { guidance ->
 
-                                        viewModel.deleteGuidance(guidance.id)
+                                        if (!token.isNullOrBlank()) {
+                                            viewModel.deleteGuidance(
+                                                token,
+                                                guidance.id
+                                            )
+                                        }
 
                                         scope.launch {
                                             snackbarHostState.showSnackbar(
@@ -364,10 +410,16 @@ fun StrategicGuidanceCard(
 fun StrategicGuidanceForm(
     title: String,
     description: String,
+    objective: String,
+    responsible: String,
     category: String,
+    campaign: String,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
+    onObjectiveChange: (String) -> Unit,
+    onResponsibleChange: (String) -> Unit,
     onCategoryChange: (String) -> Unit,
+    onCampaignChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
@@ -405,9 +457,30 @@ fun StrategicGuidanceForm(
             )
 
             OutlinedTextField(
+                value = objective,
+                onValueChange = onObjectiveChange,
+                label = { Text("Objetivo") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = responsible,
+                onValueChange = onResponsibleChange,
+                label = { Text("Responsável") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
                 value = category,
                 onValueChange = onCategoryChange,
                 label = { Text("Categoria") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = campaign,
+                onValueChange = onCampaignChange,
+                label = { Text("Campanha") },
                 modifier = Modifier.fillMaxWidth()
             )
 

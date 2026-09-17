@@ -10,6 +10,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Header
+import br.com.fiap.inovagab.data.remote.model.CreateStrategicGuidanceRequest
 
 interface StrategicGuidanceService {
 
@@ -21,19 +22,22 @@ interface StrategicGuidanceService {
         @Header("Authorization") authorization: String
     ): List<StrategicGuidance>
 
-    @POST("orientacoes")
+    @POST("api/DiretrizesEstrategicas")
     suspend fun createGuidance(
-        @Body strategicGuidance: StrategicGuidance
+        @Header("Authorization") authorization: String,
+        @Body request: CreateStrategicGuidanceRequest
     ): StrategicGuidance
 
-    @PUT("orientacoes/{id}")
+    @PUT("api/DiretrizesEstrategicas/{id}")
     suspend fun updateGuidance(
+        @Header("Authorization") authorization: String,
         @Path("id") id: String,
-        @Body strategicGuidance: StrategicGuidance
+        @Body request: CreateStrategicGuidanceRequest
     ): StrategicGuidance
 
-    @DELETE("orientacoes/{id}")
+    @DELETE("api/DiretrizesEstrategicas/{id}")
     suspend fun deleteGuidance(
+        @Header("Authorization") authorization: String,
         @Path("id") id: String
     )
 

@@ -193,7 +193,8 @@ fun AppNavigation() {
 
             StrategicGuidanceScreen(
                 navController = navController,
-                viewModel = strategicViewModel
+                viewModel = strategicViewModel,
+                authViewModel = authViewModel
             )
         }
     }

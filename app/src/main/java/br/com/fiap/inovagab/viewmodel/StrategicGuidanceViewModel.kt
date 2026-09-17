@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.data.remote.network.RetrofitInstance
+import br.com.fiap.inovagab.data.remote.model.CreateStrategicGuidanceRequest
 
 class StrategicGuidanceViewModel : ViewModel() {
 
@@ -32,7 +33,7 @@ class StrategicGuidanceViewModel : ViewModel() {
             = _errorMessage
 
     init {
-        loadGuidances()
+
     }
 
     fun loadGuidances() {
@@ -88,7 +89,8 @@ class StrategicGuidanceViewModel : ViewModel() {
     }
 
     fun createGuidance(
-        strategicGuidance: StrategicGuidance
+        token: String,
+        request: CreateStrategicGuidanceRequest
     ) {
 
         viewModelScope.launch {
@@ -96,26 +98,29 @@ class StrategicGuidanceViewModel : ViewModel() {
             try {
 
                 repository.createGuidance(
-                    strategicGuidance
+                    token,
+                    request
                 )
 
-                loadGuidances()
+                loadStrategicGuidances(token)
 
             } catch (e: Exception) {
 
                 _errorMessage.value =
                     "Erro ao cadastrar orientação"
-
             }
         }
     }
 
     fun updateGuidance(
-        strategicGuidance: StrategicGuidance
+        token: String,
+        id: String,
+        request: CreateStrategicGuidanceRequest
     ) {
 
-        if (strategicGuidance.id.isBlank()) {
-            _errorMessage.value = "Não foi possível editar esta orientação."
+        if (id.isBlank()) {
+            _errorMessage.value =
+                "Não foi possível editar esta orientação."
             return
         }
 
@@ -124,27 +129,29 @@ class StrategicGuidanceViewModel : ViewModel() {
             try {
 
                 repository.updateGuidance(
-                    strategicGuidance.id,
-                    strategicGuidance
+                    token,
+                    id,
+                    request
                 )
 
-                loadGuidances()
+                loadStrategicGuidances(token)
 
             } catch (e: Exception) {
 
                 _errorMessage.value =
                     "Erro ao atualizar orientação"
-
             }
         }
     }
 
     fun deleteGuidance(
+        token: String,
         id: String
     ) {
 
         if (id.isBlank()) {
-            _errorMessage.value = "Não foi possível excluir esta orientação."
+            _errorMessage.value =
+                "Não foi possível excluir esta orientação."
             return
         }
 
@@ -152,15 +159,17 @@ class StrategicGuidanceViewModel : ViewModel() {
 
             try {
 
-                repository.deleteGuidance(id)
+                repository.deleteGuidance(
+                    token,
+                    id
+                )
 
-                loadGuidances()
+                loadStrategicGuidances(token)
 
             } catch (e: Throwable) {
 
                 _errorMessage.value =
                     "Erro ao excluir orientação"
-
             }
         }
     }
