@@ -145,7 +145,7 @@ fun ProfileScreen(
                         )
 
                         Text(
-                            text = "Autenticado via Firebase Authentication",
+                            text = "Autenticado via API com JWT",
                             color = Color(0xFF6B7280)
                         )
                     }
