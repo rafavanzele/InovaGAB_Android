@@ -53,7 +53,8 @@ import br.com.fiap.inovagab.data.remote.model.CreateStrategicGuidanceRequest
 fun StrategicGuidanceScreen(
     navController: NavController,
     viewModel: StrategicGuidanceViewModel,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    canManage: Boolean = false
 ) {
     val guidances by viewModel.guidances.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -142,21 +143,24 @@ fun StrategicGuidanceScreen(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Button(
-                                onClick = {
-                                    showForm = true
-                                    editingGuidance = null
-                                    title = ""
-                                    description = ""
-                                    category = ""
+                            if (canManage) {
+                                Button(
+                                    onClick = {
+                                        showForm = true
+                                        editingGuidance = null
+                                        title = ""
+                                        description = ""
+                                        category = ""
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null
+                                    )
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Nova orientação")
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Nova orientação")
                             }
 
                             if (showForm) {
@@ -239,6 +243,7 @@ fun StrategicGuidanceScreen(
                                     title = guidance.titulo,
                                     description = guidance.descricao,
                                     category = guidance.categoria,
+                                    canManage = canManage,
                                     onEditClick = {
                                         showForm = true
                                         editingGuidance = guidance
@@ -329,6 +334,7 @@ fun StrategicGuidanceCard(
     title: String,
     description: String,
     category: String,
+    canManage: Boolean,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -380,26 +386,28 @@ fun StrategicGuidanceCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TextButton(onClick = onEditClick) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Editar")
-                }
+            if (canManage) {
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onEditClick) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Editar")
+                    }
 
-                TextButton(onClick = onDeleteClick) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Excluir")
+                    TextButton(onClick = onDeleteClick) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Excluir")
+                    }
                 }
             }
         }

@@ -201,7 +201,21 @@ fun AppNavigation() {
             StrategicGuidanceScreen(
                 navController = navController,
                 viewModel = strategicViewModel,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                canManage = true
+            )
+        }
+
+        composable(route = "strategicGuidanceReadOnly") {
+
+            val strategicViewModel: StrategicGuidanceViewModel =
+                viewModel()
+
+            StrategicGuidanceScreen(
+                navController = navController,
+                viewModel = strategicViewModel,
+                authViewModel = authViewModel,
+                canManage = false
             )
         }
 

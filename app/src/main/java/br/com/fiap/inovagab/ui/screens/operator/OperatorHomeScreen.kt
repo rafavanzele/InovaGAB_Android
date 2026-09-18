@@ -38,6 +38,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
+import androidx.compose.material.icons.filled.Info
 
 @Composable
 fun OperatorHomeScreen(navController: NavController? = null) {
@@ -121,6 +122,15 @@ fun OperatorHomeScreen(navController: NavController? = null) {
                     icon = Icons.Default.ListAlt,
                     onClick = {
                         navController?.navigate("ideaStatus")
+                    }
+                )
+
+                HomeActionCard(
+                    title = "Orientações estratégicas",
+                    description = "Consulte as estratégias e diretrizes da organização.",
+                    icon = Icons.Default.Info,
+                    onClick = {
+                        navController?.navigate("strategicGuidanceReadOnly")
                     }
                 )
             }
