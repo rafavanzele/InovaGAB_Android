@@ -186,8 +186,11 @@ fun AppNavigation() {
             )
         }
 
-        composable("executiveReports") {
-            ExecutiveReportsScreen(navController = navController)
+        composable(route = "executiveReports") {
+            ExecutiveReportsScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
 
         composable("strategicGuidance") {

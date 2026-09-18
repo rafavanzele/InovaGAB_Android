@@ -1,23 +1,50 @@
 package br.com.fiap.inovagab.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import br.com.fiap.inovagab.data.model.ExecutiveReport
+import androidx.lifecycle.viewModelScope
+import br.com.fiap.inovagab.data.remote.model.ExecutiveReportResponse
 import br.com.fiap.inovagab.data.repository.ExecutiveReportRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class ExecutiveReportViewModel : ViewModel() {
 
     private val repository = ExecutiveReportRepository()
 
-    private val _executiveReports = MutableStateFlow<List<ExecutiveReport>>(emptyList())
-    val executiveReports: StateFlow<List<ExecutiveReport>> = _executiveReports
+    private val _executiveReport =
+        MutableStateFlow<ExecutiveReportResponse?>(null)
 
-    init {
-        loadExecutiveReports()
-    }
+    val executiveReport: StateFlow<ExecutiveReportResponse?> =
+        _executiveReport
 
-    private fun loadExecutiveReports() {
-        _executiveReports.value = repository.getExecutiveReports()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun loadExecutiveReport(token: String) {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            try {
+
+                _executiveReport.value =
+                    repository.getExecutiveReport(token)
+
+            } catch (e: Exception) {
+
+                _errorMessage.value =
+                    "Erro ao carregar relatório executivo."
+
+            } finally {
+
+                _isLoading.value = false
+            }
+        }
     }
 }

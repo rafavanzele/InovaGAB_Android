@@ -12,6 +12,7 @@ import retrofit2.http.Path
 import retrofit2.http.Header
 import br.com.fiap.inovagab.data.remote.model.CreateStrategicGuidanceRequest
 import br.com.fiap.inovagab.data.remote.model.CreateStrategicIndicatorRequest
+import br.com.fiap.inovagab.data.remote.model.ExecutiveReportResponse
 
 interface StrategicGuidanceService {
 
@@ -22,6 +23,13 @@ interface StrategicGuidanceService {
     suspend fun getStrategicGuidances(
         @Header("Authorization") authorization: String
     ): List<StrategicGuidance>
+
+
+    @GET("api/RelatoriosExecutivos")
+    suspend fun getExecutiveReport(
+        @Header("Authorization") authorization: String
+    ): ExecutiveReportResponse
+
 
     @POST("api/DiretrizesEstrategicas")
     suspend fun createGuidance(

@@ -1,11 +1,16 @@
 package br.com.fiap.inovagab.data.repository
 
-import br.com.fiap.inovagab.data.mock.ExecutiveReportMock
-import br.com.fiap.inovagab.data.model.ExecutiveReport
+import br.com.fiap.inovagab.data.remote.model.ExecutiveReportResponse
+import br.com.fiap.inovagab.data.remote.network.RetrofitInstance
 
 class ExecutiveReportRepository {
 
-    fun getExecutiveReports(): List<ExecutiveReport> {
-        return ExecutiveReportMock.executiveReports
+    suspend fun getExecutiveReport(
+        token: String
+    ): ExecutiveReportResponse {
+
+        return RetrofitInstance.api.getExecutiveReport(
+            authorization = "Bearer $token"
+        )
     }
 }
