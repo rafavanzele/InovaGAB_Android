@@ -60,13 +60,19 @@ import androidx.compose.material3.IconButton
 import br.com.fiap.inovagab.data.remote.model.CreateProjectRequest
 import br.com.fiap.inovagab.data.remote.model.UpdateProjectRequest
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
+import br.com.fiap.inovagab.ui.viewmodel.RemoteAchievedResultViewModel
+import br.com.fiap.inovagab.data.remote.model.CreateAchievedResultRequest
 
 @Composable
 fun ProjectsScreen(
     navController: NavController? = null,
     viewModel: ProjectViewModel = viewModel(),
     authViewModel: AuthViewModel,
-    strategicGuidanceViewModel: StrategicGuidanceViewModel = viewModel()
+    strategicGuidanceViewModel: StrategicGuidanceViewModel = viewModel(),
+    achievedResultViewModel: RemoteAchievedResultViewModel = viewModel()
 ) {
 
     val projects by viewModel.projects.collectAsState()
@@ -116,6 +122,17 @@ fun ProjectsScreen(
         mutableStateOf<ProjectResponse?>(null)
     }
 
+    var selectedProjectForResult by remember {
+        mutableStateOf<ProjectResponse?>(null)
+    }
+
+    var resultTitle by remember { mutableStateOf("") }
+    var resultDescription by remember { mutableStateOf("") }
+    var resultCategory by remember { mutableStateOf("") }
+    var resultValue by remember { mutableStateOf("") }
+    var resultUnit by remember { mutableStateOf("") }
+    var resultDate by remember { mutableStateOf("") }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -134,6 +151,151 @@ fun ProjectsScreen(
             )
         }
     ) {
+        selectedProjectForResult?.let { selectedProject ->
+
+            AlertDialog(
+                onDismissRequest = {
+                    selectedProjectForResult = null
+                },
+
+                title = {
+                    Text("Registrar resultado")
+                },
+
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+
+                        Text(
+                            text = "Projeto: ${selectedProject.titulo}",
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1F3F66)
+                        )
+
+                        OutlinedTextField(
+                            value = resultTitle,
+                            onValueChange = { resultTitle = it },
+                            label = { Text("Título") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = resultDescription,
+                            onValueChange = { resultDescription = it },
+                            label = { Text("Descrição") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = resultCategory,
+                            onValueChange = { resultCategory = it },
+                            label = { Text("Categoria") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = resultValue,
+                            onValueChange = { resultValue = it },
+                            label = { Text("Valor alcançado") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = resultUnit,
+                            onValueChange = { resultUnit = it },
+                            label = { Text("Unidade") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = resultDate,
+                            onValueChange = { resultDate = it },
+                            label = { Text("Data do resultado") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val value = resultValue.toDoubleOrNull()
+
+                            if (
+                                resultTitle.isBlank() ||
+                                resultDescription.isBlank() ||
+                                resultCategory.isBlank() ||
+                                value == null ||
+                                resultUnit.isBlank() ||
+                                resultDate.isBlank()
+                            ) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Preencha todos os campos corretamente."
+                                    )
+                                }
+                            } else {
+                                val request = CreateAchievedResultRequest(
+                                    titulo = resultTitle.trim(),
+                                    descricao = resultDescription.trim(),
+                                    categoria = resultCategory.trim(),
+                                    projetoId = selectedProject.id ?: "",
+                                    valorAlcancado = value,
+                                    unidade = resultUnit.trim(),
+                                    dataResultado = resultDate.trim()
+                                )
+
+                                if (!token.isNullOrBlank()) {
+                                    achievedResultViewModel.createAchievedResult(
+                                        token = token,
+                                        request = request,
+                                        onSuccess = {
+                                            selectedProjectForResult = null
+
+                                            resultTitle = ""
+                                            resultDescription = ""
+                                            resultCategory = ""
+                                            resultValue = ""
+                                            resultUnit = ""
+                                            resultDate = ""
+
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "Resultado registrado com sucesso."
+                                                )
+                                            }
+                                        },
+                                        onError = { error ->
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    error
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        },
+                        enabled = true
+                    ) {
+                        Text("Registrar")
+                    }
+                },
+
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            selectedProjectForResult = null
+                        }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
+
+
         Scaffold(
             topBar = {
                 InovaTopBar(
@@ -248,6 +410,7 @@ fun ProjectsScreen(
                                 Box(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
+
 
                                     OutlinedTextField(
                                         value = selectedGuidanceTitle,
@@ -528,6 +691,9 @@ fun ProjectsScreen(
                             scope.launch {
                                 listState.animateScrollToItem(0)
                             }
+                        },
+                        onRegisterResult = { selectedProject ->
+                            selectedProjectForResult = selectedProject
                         }
                     )
                 }
@@ -539,7 +705,8 @@ fun ProjectsScreen(
 @Composable
 fun ProjectCard(
     project: ProjectResponse,
-    onEdit: (ProjectResponse) -> Unit
+    onEdit: (ProjectResponse) -> Unit,
+    onRegisterResult: (ProjectResponse) -> Unit
 ) {
 
     Card(
@@ -655,6 +822,26 @@ fun ProjectCard(
                     text = "Editar projeto",
                     modifier = Modifier.padding(16.dp),
                     color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE8EEF7)
+                ),
+                onClick = {
+                    onRegisterResult(project)
+                }
+            ) {
+                Text(
+                    text = "Registrar resultado",
+                    modifier = Modifier.padding(16.dp),
+                    color = Color(0xFF1F3F66),
                     fontWeight = FontWeight.Bold
                 )
             }
