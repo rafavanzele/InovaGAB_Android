@@ -134,33 +134,6 @@ fun LeaderHomeScreen(
                 )
 
                 LeaderActionCard(
-                    title = "Resultados alcançados",
-                    description = "Acompanhe ganhos, avanços e entregas.",
-                    icon = Icons.Default.EmojiEvents,
-                    onClick = {
-                        navController.navigate("achievedResults")
-                    }
-                )
-
-                LeaderActionCard(
-                    title = "Engajamento das equipes",
-                    description = "Veja a participação dos colaboradores.",
-                    icon = Icons.Default.Groups,
-                    onClick = {
-                        navController.navigate("teamEngagement")
-                    }
-                )
-
-                LeaderActionCard(
-                    title = "Ranking de inovadores",
-                    description = "Reconheça colaboradores com mais ideias aprovadas.",
-                    icon = Icons.Default.EmojiEvents,
-                    onClick = {
-                        navController.navigate("contributorRanking")
-                    }
-                )
-
-                LeaderActionCard(
                     title = "Relatórios executivos",
                     description = "Acesse análises para tomada de decisão.",
                     icon = Icons.Default.BarChart,
@@ -171,7 +144,7 @@ fun LeaderHomeScreen(
 
                 LeaderActionCard(
                     title = "Orientações estratégicas",
-                    description = "Consulte recomendações estratégicas vindas da API.",
+                    description = "Consulte e gerencie as estratégias e diretrizes da organização.",
                     icon = Icons.Default.Insights,
                     onClick = {
                         navController.navigate("strategicGuidance")
