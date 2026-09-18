@@ -44,9 +44,13 @@ import br.com.fiap.inovagab.ui.components.InovaDrawer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Assignment
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
 
 @Composable
-fun LeaderHomeScreen(navController: NavController) {
+fun LeaderHomeScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel
+) {
 
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -62,7 +66,10 @@ fun LeaderHomeScreen(navController: NavController) {
                 drawerState = drawerState,
                 homeRoute = "leaderHome",
                 profileRoute = "leaderProfile",
-                notificationsRoute = "leaderNotifications"
+                notificationsRoute = "leaderNotifications",
+                onLogout = {
+                    authViewModel.logout()
+                }
             )
         }
     ) {

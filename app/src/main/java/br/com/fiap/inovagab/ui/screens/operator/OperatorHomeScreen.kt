@@ -39,9 +39,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
 import androidx.compose.material.icons.filled.Info
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
 
 @Composable
-fun OperatorHomeScreen(navController: NavController? = null) {
+fun OperatorHomeScreen(
+    navController: NavController? = null,
+    authViewModel: AuthViewModel
+) {
 
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -56,7 +60,10 @@ fun OperatorHomeScreen(navController: NavController? = null) {
                 navController = navController,
                 drawerState = drawerState,
                 homeRoute = "operatorHome",
-                profileRoute = "operatorProfile"
+                profileRoute = "operatorProfile",
+                onLogout = {
+                    authViewModel.logout()
+                }
             )
         }
     ) {
@@ -221,11 +228,11 @@ fun HomeActionCard(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun OperatorHomeScreenPreview() {
-    InovaGABTheme {
-        OperatorHomeScreen()
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun OperatorHomeScreenPreview() {
+//    InovaGABTheme {
+//        OperatorHomeScreen()
+//    }
+//}
 

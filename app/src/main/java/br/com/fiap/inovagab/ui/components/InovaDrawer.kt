@@ -35,7 +35,8 @@ fun InovaDrawer(
     drawerState: DrawerState? = null,
     homeRoute: String = "",
     profileRoute: String = "",
-    notificationsRoute: String = ""
+    notificationsRoute: String = "",
+    onLogout: () -> Unit = {}
 ) {
 
     val scope = rememberCoroutineScope()
@@ -112,6 +113,9 @@ fun InovaDrawer(
             label = "Sair",
             icon = Icons.Default.ExitToApp,
             onClick = {
+
+                onLogout()
+
                 navController?.navigate("login") {
                     popUpTo(0)
                 }

@@ -40,9 +40,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import br.com.fiap.inovagab.ui.components.InovaDrawer
 import androidx.compose.material.icons.filled.Info
+import br.com.fiap.inovagab.viewmodel.AuthViewModel
 
 @Composable
-fun ManagerHomeScreen(navController: NavController? = null) {
+fun ManagerHomeScreen(
+    navController: NavController? = null,
+    authViewModel: AuthViewModel
+) {
 
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -58,7 +62,10 @@ fun ManagerHomeScreen(navController: NavController? = null) {
                 drawerState = drawerState,
                 homeRoute = "managerHome",
                 profileRoute = "managerProfile",
-                notificationsRoute = "managerNotifications"
+                notificationsRoute = "managerNotifications",
+                onLogout = {
+                    authViewModel.logout()
+                }
             )
         }
     ) {
@@ -239,11 +246,11 @@ fun ManagerActionCard(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ManagerHomeScreenPreview() {
-
-    InovaGABTheme {
-        ManagerHomeScreen()
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun ManagerHomeScreenPreview() {
+//
+//    InovaGABTheme {
+//        ManagerHomeScreen()
+//    }
+//}

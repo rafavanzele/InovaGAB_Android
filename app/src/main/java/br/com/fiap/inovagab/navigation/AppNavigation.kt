@@ -101,16 +101,25 @@ fun AppNavigation() {
             )
         }
 
-        composable("operatorHome") {
-            OperatorHomeScreen(navController = navController)
+        composable(route = "operatorHome") {
+            OperatorHomeScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
 
-        composable("managerHome") {
-            ManagerHomeScreen(navController = navController)
+        composable(route = "managerHome") {
+            ManagerHomeScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
 
-        composable("leaderHome") {
-            LeaderHomeScreen(navController = navController)
+        composable(route = "leaderHome") {
+            LeaderHomeScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            )
         }
 
         composable("createIdea") {
