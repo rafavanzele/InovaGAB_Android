@@ -65,6 +65,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import br.com.fiap.inovagab.ui.viewmodel.RemoteAchievedResultViewModel
 import br.com.fiap.inovagab.data.remote.model.CreateAchievedResultRequest
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun ProjectsScreen(
@@ -362,9 +363,12 @@ fun ProjectsScreen(
 
                         Text(
                             text = if (showForm) "Fechar cadastro" else "Novo projeto",
-                            modifier = Modifier.padding(18.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(18.dp),
                             color = Color.White,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
                     }
 
@@ -655,9 +659,12 @@ fun ProjectsScreen(
                                         } else {
                                             "Salvar alterações"
                                         },
-                                        modifier = Modifier.padding(18.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(18.dp),
                                         color = Color.White,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
@@ -820,9 +827,12 @@ fun ProjectCard(
             ) {
                 Text(
                     text = "Editar projeto",
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -840,9 +850,12 @@ fun ProjectCard(
             ) {
                 Text(
                     text = "Registrar resultado",
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     color = Color(0xFF1F3F66),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
 

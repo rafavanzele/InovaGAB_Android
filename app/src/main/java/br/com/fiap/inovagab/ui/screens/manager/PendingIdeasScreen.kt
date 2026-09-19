@@ -260,6 +260,7 @@ fun PendingIdeaCard(
                 onClick = {
                     onPriorityChange(idea)
                 },
+                modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (idea.priorizada) {
                         Color(0xFFFFA000)
@@ -277,15 +278,18 @@ fun PendingIdeaCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+
                 Button(
                     onClick = {
                         onApprove(idea)
                     },
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF4CAF50)
                     )
@@ -297,6 +301,7 @@ fun PendingIdeaCard(
                     onClick = {
                         onReject(idea)
                     },
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF44336)
                     )

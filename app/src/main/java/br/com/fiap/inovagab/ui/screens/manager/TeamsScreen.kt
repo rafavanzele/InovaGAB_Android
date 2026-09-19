@@ -51,6 +51,7 @@ import androidx.compose.material3.OutlinedTextField
 import br.com.fiap.inovagab.data.remote.model.CreateTeamRequest
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun TeamsScreen(
@@ -178,9 +179,12 @@ fun TeamsScreen(
                     ) {
                         Text(
                             text = "Nova equipe",
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(18.dp),
                             color = Color.White,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -537,9 +541,12 @@ fun TeamCard(
             ) {
                 Text(
                     text = "Editar equipe",
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -557,9 +564,12 @@ fun TeamCard(
             ) {
                 Text(
                     text = "Excluir equipe",
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
         }
